@@ -2,7 +2,6 @@ const { getDataBase } = require('../config');
 const { ObjectId } = require('mongodb');
 const db = getDataBase();
 const User = db.collection('Users');
-const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 
 const hashing = ((instance, option) => {
@@ -13,6 +12,10 @@ const hashing = ((instance, option) => {
 
 
 class UserModel {
+    static findOne(email) {
+        return User.findOne({ $or: [{email}, {_id: email}]});
+    };
+
     static findAll() {
         return User.find({}).toArray();
     };
@@ -24,7 +27,15 @@ class UserModel {
             email: newUser.email,
         }
         return User.insertOne(user);
-    }
+    };
+
+    static updateProfile(dataId, dataSet) {
+        return User.findOneAndUpdate({_id: ObjectId(dataId)}, {$set: dataSet});
+    };
+    
+    // static updateUser(dataId, dataSet) {
+    //     return User.findOneAndUpdate({_id: ObjectId(dataId)}, {$set: dataSet});
+    // };
 };
 
 module.exports = UserModel;
